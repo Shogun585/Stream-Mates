@@ -5,12 +5,23 @@ import { Server } from 'socket.io';
 import { RoomManager } from './server/room-manager';
 import { setupSocketHandlers } from './server/socket-handlers';
 
-// custom server needed for Socket.IO; for Vercel deploy, will need to split WS server separately or use Vercel's edge runtime workaround
+const PORT = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
-const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
+// If WS_ONLY is set, we bypass Next.js entirely (perfect for Render deployment)
+const isWsOnly = process.env.WS_ONLY === 'true';
+
+async function startServer() {
+  let handle: any;
+
+  if (!isWsOnly) {
+    console.log('> Starting Next.js compilation...');
+    const app = next({ dev });
+    handle = app.getRequestHandler();
+    await app.prepare();
+    console.log('> Next.js compiled.');
+  }
+
   const server = createServer((req, res) => {
     const parsedUrl = parse(req.url!, true);
     
@@ -18,6 +29,13 @@ app.prepare().then(() => {
     if (parsedUrl.pathname === '/ping') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end('pong');
+      return;
+    }
+
+    // In WS_ONLY mode, we only serve a basic response for root HTTP requests
+    if (isWsOnly) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('Stream Mates WebSocket Server is Running (WS_ONLY mode)');
       return;
     }
 
@@ -47,7 +65,10 @@ app.prepare().then(() => {
   const roomManager = new RoomManager();
   setupSocketHandlers(io, roomManager);
 
-  server.listen(process.env.PORT || 3000, () => {
-    console.log(`> Ready on http://localhost:${process.env.PORT}`);
+  server.listen(PORT, () => {
+    console.log(`> Server ready on port ${PORT}`);
+    if (isWsOnly) console.log('> Running in WebSocket-Only Mode (Next.js is disabled)');
   });
-});
+}
+
+startServer().catch(console.error);
