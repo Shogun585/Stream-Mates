@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme by default */
+  --bg-color: #FDFBF7;
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --text-primary: #1E1E1E;
+  --text-muted: #555555;
+  --accent: #FF748B;
+  --accent-soft: #FF9EAE;
+  --border: rgba(0, 0, 0, 0.1);
+  --droplet-1: #FF748B;
+  --droplet-2: #FFD13B;
+  --droplet-3: #4ade80;
+  --droplet-4: #38bdf8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  /* Dark theme */
+  --bg-color: #0A0A0A;
+  --glass-bg: rgba(20, 20, 20, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #F9F9F9;
+  --text-muted: #A0A0A0;
+  --accent: #FF0055;
+  --accent-soft: #FF3377;
+  --border: rgba(255, 255, 255, 0.1);
+  --droplet-1: #00F0FF;
+  --droplet-2: #FF0055;
+  --droplet-3: #39FF14;
+  --droplet-4: #B200FF;
+  --shadow-color: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Grain overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.01;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--bg-color);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid var(--glass-border);
+  box-shadow: 8px 8px 0px var(--shadow-color);
+}
+
+/* Clerk Overrides */
+.cl-userButtonPopoverActionButtonText, 
+.cl-userButtonPopoverActionButtonIcon,
+.cl-userButtonPopoverActionButton,
+.cl-userPreviewMainIdentifier,
+.cl-userPreviewSecondaryIdentifier,
+.cl-internal-1x7cdm6 /* some internal clerk icons/text if needed */ {
+  color: var(--text-primary) !important;
+}
+.cl-userButtonPopoverActionButton:hover {
+  background-color: var(--border) !important;
+}

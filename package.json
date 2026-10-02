@@ -1,0 +1,36 @@
+{
+  "name": "stream-mates",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "next build",
+    "start": "NODE_ENV=production ts-node src/server.ts",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^5.0.0",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "autoprefixer": "^10.0.1",
+    "framer-motion": "^13.5.0",
+    "ioredis": "^6.0.0",
+    "lucide-react": "^1.49.0",
+    "mongoose": "^8.3.0",
+    "nanoid": "^5.0.7",
+    "next": "14.2.3",
+    "next-themes": "^0.4.6",
+    "postcss": "^8",
+    "react": "^18",
+    "react-dom": "^18",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.4",
+    "tailwindcss": "^3.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}
