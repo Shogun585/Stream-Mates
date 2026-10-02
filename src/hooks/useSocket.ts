@@ -21,8 +21,9 @@ export function useSocket({ roomCode }: UseSocketOptions) {
   useEffect(() => {
     if (!user) return;
 
-    // Connect to same origin (custom server serves both Next.js and Socket.IO)
-    const socket = io({
+    // In production, connect to the Render WS server. Locally, connect to same origin.
+    const socketUrl = process.env.NEXT_PUBLIC_WS_URL || '';
+    const socket = io(socketUrl, {
       // no custom path — default /socket.io works with our custom server
     });
     
