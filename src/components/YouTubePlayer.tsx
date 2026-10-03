@@ -20,6 +20,9 @@ interface YouTubePlayerProps {
   onChangeVideo: (videoId: string) => void;
   onRequestControl?: () => void;
   isSidebarOpen?: boolean;
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+  isMobile?: boolean;
 }
 
 declare global {
@@ -38,7 +41,8 @@ function formatTime(seconds: number) {
 
 export default function YouTubePlayer({ 
   videoId, roomState, disabled, onEmit, onTimeUpdate,
-  isPlaying, currentTime, duration, onPlayPause, onSeek, onChangeVideo, onRequestControl, isSidebarOpen
+  isPlaying, currentTime, duration, onPlayPause, onSeek, onChangeVideo, onRequestControl, isSidebarOpen,
+  isFullscreen, toggleFullscreen, isMobile
 }: YouTubePlayerProps) {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +57,6 @@ export default function YouTubePlayer({
   
   const [volume, setVolume] = useState(100);
   const [isMuted, setIsMuted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleMute = useCallback(() => {
     if (!playerRef.current) return;
@@ -193,21 +196,7 @@ export default function YouTubePlayer({
     }
   };
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      wrapperRef.current?.requestFullscreen().catch(err => console.log(err));
-    } else {
-      document.exitFullscreen().catch(err => console.log(err));
-    }
-  }, []);
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -274,33 +263,33 @@ export default function YouTubePlayer({
         className={`absolute bottom-0 left-0 right-0 z-20 bg-[var(--glass-bg)] md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-[var(--glass-border)] md:border-none p-3 md:px-6 md:pt-6 md:pb-2 flex flex-col gap-4 shadow-2xl md:shadow-none transition-transform duration-500 ease-[cubic-bezier(0.1,0.8,0.2,1)] ${showControls ? 'translate-y-0' : 'translate-y-full'} ${disabled ? 'opacity-90' : ''}`}
         onClick={(e) => e.stopPropagation()} // Prevent toggling when interacting with controls
       >
-        <div className={`flex items-center justify-center md:justify-start gap-3 md:gap-6 ${isSidebarOpen ? 'md:justify-between' : ''}`}>
-          <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 md:gap-4 w-full ${isMobile ? 'justify-center gap-8' : 'justify-between'}`}>
+          <div className="flex items-center gap-1 md:gap-2">
             <button
               disabled={disabled}
               onClick={() => onSeek(Math.max(0, currentTime - 10))}
               className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[var(--bg-color)] border border-[var(--border)] font-bold hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:transform-none shadow-sm text-[var(--text-primary)]"
             >
-              <RotateCcw size={20} />
+              <RotateCcw size={16} className="md:w-5 md:h-5" />
             </button>
             <button
               disabled={disabled}
               onClick={() => onPlayPause(!isPlaying)}
-              className="w-16 h-8 md:w-24 md:h-12 flex items-center justify-center rounded-full bg-[var(--accent)] text-white font-bold hover:scale-105 active:scale-95 transition-transform disabled:bg-gray-400 disabled:transform-none shadow-sm"
+              className="w-12 h-8 md:w-24 md:h-12 flex items-center justify-center rounded-full bg-[var(--accent)] text-white font-bold hover:scale-105 active:scale-95 transition-transform disabled:bg-gray-400 disabled:transform-none shadow-sm"
             >
-              {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+              {isPlaying ? <Pause size={18} className="md:w-6 md:h-6" fill="currentColor" /> : <Play size={18} className="md:w-6 md:h-6" fill="currentColor" />}
             </button>
             <button
               disabled={disabled}
               onClick={() => onSeek(Math.min(duration, currentTime + 10))}
               className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[var(--bg-color)] border border-[var(--border)] font-bold hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:transform-none shadow-sm text-[var(--text-primary)]"
             >
-              <RotateCw size={20} />
+              <RotateCw size={16} className="md:w-5 md:h-5" />
             </button>
           </div>
 
-          <div className="hidden md:flex flex-1 items-center gap-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-full px-4 py-2 shadow-inner">
-            <span className="font-mono text-sm w-12 text-right font-bold text-[var(--text-primary)]">{formatTime(currentTime)}</span>
+          <div className={`${isMobile ? 'hidden' : 'flex'} flex-1 items-center gap-2 md:gap-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-full px-2 py-1 md:px-4 md:py-2 shadow-inner min-w-0`}>
+            <span className="font-mono text-xs md:text-sm w-8 md:w-12 text-right font-bold text-[var(--text-primary)]">{formatTime(currentTime)}</span>
             <input
               type="range"
               min={0}
@@ -308,20 +297,20 @@ export default function YouTubePlayer({
               value={currentTime}
               onChange={(e) => onSeek(Number(e.target.value))}
               disabled={disabled}
-              className="flex-1 h-3 bg-[var(--border)] rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed accent-[var(--accent)]"
+              className="flex-1 h-2 md:h-3 bg-[var(--border)] rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed accent-[var(--accent)] min-w-0"
             />
-            <span className="font-mono text-sm w-12 font-bold text-[var(--text-primary)]">{formatTime(duration)}</span>
+            <span className="font-mono text-xs md:text-sm w-8 md:w-12 font-bold text-[var(--text-primary)]">{formatTime(duration)}</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-1 md:gap-4">
             <div className="relative flex items-center justify-center">
               <button 
                 onClick={() => setShowVolumeSlider(!showVolumeSlider)}
-                className={`w-12 h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border)] hover:bg-[var(--glass-border)] transition-colors text-[var(--text-primary)] ${showVolumeSlider ? 'bg-[var(--glass-border)]' : ''}`}
+                className={`w-8 h-8 md:w-12 md:h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border)] hover:bg-[var(--glass-border)] transition-colors text-[var(--text-primary)] ${showVolumeSlider ? 'bg-[var(--glass-border)]' : ''}`}
               >
-                {isMuted || volume === 0 ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                {isMuted || volume === 0 ? <VolumeX size={16} className="md:w-6 md:h-6" /> : <Volume2 size={16} className="md:w-6 md:h-6" />}
               </button>
-              <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 transition-opacity duration-200 bg-[var(--glass-bg)] border border-[var(--border)] p-4 rounded-2xl shadow-xl flex items-center justify-center h-32 w-12 z-50 ${showVolumeSlider ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+              <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 transition-opacity duration-200 bg-[var(--glass-bg)] border border-[var(--border)] p-2 md:p-4 rounded-2xl shadow-xl flex items-center justify-center h-24 md:h-32 w-10 md:w-12 z-50 ${showVolumeSlider ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
                 <input
                   type="range"
                   min="0"
@@ -332,17 +321,17 @@ export default function YouTubePlayer({
                     handleVolumeChange(val);
                     if (val === 0 && !isMuted) toggleMute();
                   }}
-                  className="w-24 h-2 -rotate-90 bg-[var(--border)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
+                  className="w-20 md:w-24 h-2 -rotate-90 bg-[var(--border)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
                 />
               </div>
             </div>
 
             <button
               onClick={toggleFullscreen}
-              className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-color)] border border-[var(--border)] hover:scale-105 active:scale-95 transition-transform shadow-sm text-[var(--text-primary)]"
+              className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center rounded-xl bg-[var(--bg-color)] border border-[var(--border)] hover:scale-105 active:scale-95 transition-transform shadow-sm text-[var(--text-primary)]"
               title="Fullscreen (F)"
             >
-              {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+              {isFullscreen ? <Minimize size={16} className="md:w-6 md:h-6" /> : <Maximize size={16} className="md:w-6 md:h-6" />}
             </button>
           </div>
         </div>

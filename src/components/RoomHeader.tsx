@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import { extractYouTubeVideoId } from '../lib/youtube';
-import { Search, LogOut } from 'lucide-react';
+import { Search, LogOut, Copy, Check } from 'lucide-react';
 
 export default function RoomHeader({ 
   roomCode, 
@@ -79,14 +79,14 @@ export default function RoomHeader({
               <span className="font-mono text-xl font-bold text-[var(--accent)]">
                 {roomCode}
               </span>
-              <span className="font-bold text-sm text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition">
-                {copied ? 'Copied!' : 'Copy'}
+              <span className="font-bold text-sm text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition flex items-center justify-center">
+                {copied ? <Check size={18} strokeWidth={3} /> : <Copy size={18} strokeWidth={2.5} />}
               </span>
             </div>
             
             <button 
               onClick={shareRoom}
-              className="px-5 py-2 rounded-full font-bold text-[var(--text-primary)] border-2 border-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-color)] transition-all transform hover:-translate-y-1 shadow-[4px_4px_0px_var(--shadow-color)] whitespace-nowrap"
+              className="px-5 py-2 rounded-full font-bold text-[var(--text-primary)] border border-transparent hover:bg-[var(--text-primary)] hover:text-[var(--bg-color)] transition-all transform hover:-translate-y-1 shadow-[4px_4px_0px_var(--shadow-color)] whitespace-nowrap"
             >
               Share URL
             </button>
@@ -102,15 +102,15 @@ export default function RoomHeader({
               value={url}
               onChange={e => setUrl(e.target.value)}
               disabled={disabled}
-              className="w-full bg-[var(--bg-color)] border border-[var(--border)] focus:border-[var(--accent)] rounded-xl pl-6 pr-12 py-2.5 font-bold text-[var(--text-primary)] focus:outline-none disabled:opacity-50 shadow-inner"
+              className="w-full bg-[var(--glass-bg)] border border-[var(--text-primary)]/20 focus:border-[var(--accent)] rounded-xl pl-6 pr-12 py-2.5 font-bold text-[var(--text-primary)] focus:outline-none disabled:opacity-50 shadow-inner backdrop-blur-md"
             />
             <button
               type="submit"
               disabled={disabled || !url.trim()}
-              className="absolute right-2 p-2 bg-[var(--accent)] text-white rounded-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:transform-none shadow-sm"
+              className="absolute right-2 p-2 bg-transparent text-[var(--accent)] rounded-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:transform-none shadow-none"
               title="Load Video"
             >
-              <Search size={18} />
+              <Search size={20} strokeWidth={2.5} />
             </button>
           </form>
         </div>
@@ -121,7 +121,7 @@ export default function RoomHeader({
           </div>
           <button 
             onClick={handleLeave}
-            className="hidden md:flex items-center justify-center p-2 rounded-xl font-bold text-[var(--accent)] border-2 border-[var(--text-primary)] hover:bg-[var(--accent)] hover:text-[var(--bg-color)] hover:border-[var(--accent)] transition-all transform hover:-translate-y-1 shadow-[4px_4px_0px_var(--shadow-color)]"
+            className="hidden md:flex items-center justify-center p-2 rounded-xl font-bold text-[var(--accent)] border border-transparent hover:bg-[var(--accent)] hover:text-[var(--bg-color)] transition-all transform hover:-translate-y-1 shadow-[4px_4px_0px_var(--shadow-color)]"
             title="Leave Room"
           >
             <LogOut size={20} strokeWidth={2.5} />

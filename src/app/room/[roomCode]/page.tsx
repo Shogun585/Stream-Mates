@@ -5,7 +5,7 @@ import MobileRoomControls from '../../../components/MobileRoomControls';
 import YouTubePlayer from '../../../components/YouTubePlayer';
 import ParticipantList from '../../../components/ParticipantList';
 import ChatPanel from '../../../components/ChatPanel';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useParams } from 'next/navigation';
 import { LoadingScreen } from '../../../components/LoadingScreen';
@@ -60,6 +60,49 @@ export default function RoomPage() {
   const [localTime, setLocalTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  const fullscreenWrapperRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const hasTouch = window.matchMedia("(pointer: coarse)").matches;
+      // Consider it mobile if it's a touch device or the screen is very small
+      setIsMobile(hasTouch || window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await fullscreenWrapperRef.current?.requestFullscreen();
+        if (isMobile && screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape');
+        }
+      } catch (err) {
+        console.log('Error attempting to enable fullscreen:', err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        if (isMobile && screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+      } catch (err) {
+        console.log('Error attempting to disable fullscreen:', err);
+      }
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   if (!isLoaded || !roomState) return (
     <div className="min-h-screen bg-[var(--bg-color)]">
@@ -133,9 +176,9 @@ export default function RoomPage() {
         </div>
       )}
       
-      <div className="flex flex-1 flex-col md:flex-row overflow-visible md:overflow-hidden gap-6 p-6 z-10 relative">
+      <div ref={fullscreenWrapperRef} className={`flex flex-1 overflow-visible md:overflow-hidden z-10 relative transition-all duration-300 ${isFullscreen ? 'flex-row gap-0 p-0 bg-black' : 'flex-col md:flex-row gap-6 p-6 bg-transparent'}`}>
         {/* Main Area: Video with Integrated Controls */}
-        <div className="sticky top-6 z-30 md:static flex-none md:flex-1 h-[40vh] md:h-auto flex flex-col min-w-0 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl overflow-hidden shadow-xl relative transition-all duration-500">
+        <div className={`sticky top-6 z-30 md:static flex-none md:flex-1 h-[40vh] md:h-auto flex flex-col min-w-0 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] overflow-hidden relative transition-all duration-500 ${isFullscreen ? 'rounded-none shadow-none border-none' : 'rounded-2xl shadow-xl'}`}>
           <div className="flex-1 relative bg-black">
             <YouTubePlayer 
               videoId={roomState?.videoId || ''}
@@ -151,13 +194,16 @@ export default function RoomPage() {
               onChangeVideo={handleChangeVideo}
               onRequestControl={() => emit('request_control')}
               isSidebarOpen={isSidebarOpen}
+              isFullscreen={isFullscreen}
+              toggleFullscreen={toggleFullscreen}
+              isMobile={isMobile}
             />
             
             {/* Expand Sidebar Button */}
             {!isSidebarOpen && (
               <button 
                 onClick={() => setIsSidebarOpen(true)}
-                className="absolute top-4 right-4 z-30 p-3 bg-[var(--glass-bg)] backdrop-blur-xl border-2 border-[var(--text-primary)] rounded-xl text-[var(--text-primary)] hover:scale-105 active:scale-95 transition-transform shadow-[3px_3px_0px_var(--shadow-color)] group"
+                className={`absolute top-4 right-4 z-30 p-3 bg-[var(--glass-bg)] backdrop-blur-xl border-2 border-[var(--text-primary)] rounded-xl text-[var(--text-primary)] hover:scale-105 active:scale-95 transition-transform shadow-[3px_3px_0px_var(--shadow-color)] group ${isFullscreen ? 'opacity-50 hover:opacity-100' : ''}`}
                 title="Expand Sidebar"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
@@ -170,13 +216,13 @@ export default function RoomPage() {
 
         {/* Sidebar Area: Participants + Chat in ONE box */}
         <div 
-          className={`flex flex-col bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          className={`flex flex-col bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] shadow-xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isFullscreen ? 'rounded-none border-none shadow-none z-50' : 'rounded-2xl'} ${
             isSidebarOpen 
-              ? 'h-[60vh] md:h-auto w-full md:w-[380px] opacity-100 translate-y-0 md:translate-x-0 mt-0 md:ml-0' 
-              : 'h-0 md:h-auto w-full md:w-0 opacity-0 -translate-y-4 md:translate-y-0 md:translate-x-full md:ml-[-24px] border-none mb-4 md:mb-0'
+              ? `h-[60vh] md:h-auto opacity-100 translate-y-0 md:translate-x-0 mt-0 md:ml-0 ${isMobile && isFullscreen ? 'w-[240px]' : 'w-full md:w-[380px]'}` 
+              : `h-0 md:h-auto opacity-0 -translate-y-4 md:translate-y-0 md:translate-x-full md:ml-[-24px] border-none mb-4 md:mb-0 ${isMobile && isFullscreen ? 'w-[240px]' : 'w-full md:w-0'}`
           }`}
         >
-          <div className="h-1/3 min-h-[180px] border-b border-[var(--border)] flex flex-col relative w-full md:w-[380px]">
+          <div className={`${isMobile && isFullscreen ? 'h-auto min-h-0 hidden' : 'h-1/3 min-h-[180px]'} border-b border-[var(--border)] flex flex-col relative w-full`}>
             <ParticipantList 
               participants={participants}
               onAssignRole={(clerkId, role) => emit('assign_role', { targetClerkId: clerkId, role })}
@@ -184,9 +230,19 @@ export default function RoomPage() {
               onTransferHost={(clerkId) => emit('transfer_host', clerkId)}
               onApproveRequest={(clerkId) => emit('approve_request', clerkId)}
               onCollapse={() => setIsSidebarOpen(false)}
+              hideList={isMobile && isFullscreen}
             />
           </div>
-          <div className="flex-1 flex flex-col overflow-hidden w-full md:w-[380px]">
+          <div className="flex-1 flex flex-col overflow-hidden w-full relative">
+            {isMobile && isFullscreen && (
+              <button 
+                onClick={() => setIsSidebarOpen(false)}
+                className="absolute top-4 right-4 z-50 p-2 bg-transparent border-2 border-[var(--border)] rounded-lg text-[var(--text-primary)] hover:border-[var(--text-primary)] hover:bg-[var(--glass-border)] transition-colors group shadow-sm"
+                title="Collapse Sidebar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            )}
             <ChatPanel 
               messages={messages}
               onSendMessage={handleSendMessage}

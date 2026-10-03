@@ -10,9 +10,10 @@ interface ParticipantListProps {
   onTransferHost?: (clerkId: string) => void;
   onApproveRequest?: (clerkId: string) => void;
   onCollapse?: () => void;
+  hideList?: boolean;
 }
 
-export default function ParticipantList({ participants, onAssignRole, onRemove, onTransferHost, onApproveRequest, onCollapse }: ParticipantListProps) {
+export default function ParticipantList({ participants, onAssignRole, onRemove, onTransferHost, onApproveRequest, onCollapse, hideList = false }: ParticipantListProps) {
   const { user } = useUser();
   const currentUser = participants.find(p => p.clerkId === user?.id);
   const canManage = currentUser?.role === 'host';
@@ -41,6 +42,7 @@ export default function ParticipantList({ participants, onAssignRole, onRemove, 
         </div>
       </div>
       
+      {!hideList && (
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {participants.map((p) => (
           <div key={p.clerkId} className="flex items-center justify-between p-3 rounded-2xl border border-transparent hover:border-[var(--border)] bg-transparent hover:bg-[var(--glass-border)] transition-colors group">
@@ -80,6 +82,7 @@ export default function ParticipantList({ participants, onAssignRole, onRemove, 
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

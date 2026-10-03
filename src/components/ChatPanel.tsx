@@ -7,7 +7,9 @@ interface ChatPanelProps {
   onSendMessage: (content: string) => void;
 }
 
-const EMOJIS = ['😂', '❤️', '🔥', '✨', '👀', '🎉', '💀', '💯', '🤔', '🙌'];
+
+
+const EMOJIS = ['😂', '❤️', '🔥', '👀', '✨', '💯', '🤔', '🙌', '💀', '🎉'];
 
 export default function ChatPanel({ messages, onSendMessage }: ChatPanelProps) {
   const [input, setInput] = useState('');
@@ -56,7 +58,7 @@ export default function ChatPanel({ messages, onSendMessage }: ChatPanelProps) {
 
       <div className="p-4 border-t border-[var(--border)] bg-transparent relative">
         {showEmoji && (
-          <div className="absolute bottom-20 right-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-2xl p-3 grid grid-cols-5 gap-3 shadow-lg z-50">
+          <div className="absolute bottom-full mb-2 left-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-2xl p-3 grid grid-cols-5 gap-3 shadow-lg z-50">
             {EMOJIS.map(emoji => (
               <button
                 key={emoji}
@@ -72,20 +74,29 @@ export default function ChatPanel({ messages, onSendMessage }: ChatPanelProps) {
             ))}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="flex gap-3">
+        <form onSubmit={handleSubmit} className="relative flex items-center">
+          <button
+            type="button"
+            onClick={() => setShowEmoji(!showEmoji)}
+            className="absolute left-3 text-2xl hover:scale-110 active:scale-95 transition-transform z-10"
+            title="Emojis"
+          >
+            😀
+          </button>
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Say something..."
-            className="flex-1 bg-[var(--bg-color)] border border-[var(--border)] rounded-full px-5 py-3 text-base font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] shadow-inner placeholder:text-[var(--text-muted)] placeholder:font-medium"
+            className="w-full bg-[var(--bg-color)] border border-[var(--border)] rounded-full pl-12 pr-14 py-3 text-base font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] shadow-inner placeholder:text-[var(--text-muted)] placeholder:font-medium"
           />
           <button
-            type="button"
-            onClick={() => setShowEmoji(!showEmoji)}
-            className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--droplet-2)] text-[var(--bg-color)] hover:-translate-y-1 active:translate-y-1 transition-transform border border-[var(--border)] shadow-sm text-2xl"
+            type="submit"
+            disabled={!input.trim()}
+            className="absolute right-2 p-2.5 bg-[var(--accent)] text-white rounded-full hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:transform-none shadow-sm flex items-center justify-center z-10"
+            title="Send Message"
           >
-            😀
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
           </button>
         </form>
       </div>
