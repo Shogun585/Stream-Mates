@@ -80,8 +80,8 @@ export default function RoomPage() {
     if (!document.fullscreenElement) {
       try {
         await fullscreenWrapperRef.current?.requestFullscreen();
-        if (isMobile && screen.orientation && screen.orientation.lock) {
-          await screen.orientation.lock('landscape');
+        if (isMobile && screen.orientation && (screen.orientation as any).lock) {
+          await (screen.orientation as any).lock('landscape');
         }
       } catch (err) {
         console.log('Error attempting to enable fullscreen:', err);
