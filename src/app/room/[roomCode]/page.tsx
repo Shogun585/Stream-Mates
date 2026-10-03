@@ -103,7 +103,7 @@ export default function RoomPage() {
   return (
     <div className="flex flex-col min-h-[100dvh] md:h-screen bg-[var(--bg-color)] overflow-y-auto overflow-x-hidden md:overflow-hidden relative selection:bg-[var(--accent)] selection:text-white">
       <DropletBackground />
-      <RoomHeader roomCode={roomCode} />
+      <RoomHeader roomCode={roomCode} disabled={!hasControl} onChangeVideo={handleChangeVideo} />
       
       {/* Error/notification toast */}
       {error && (
@@ -135,7 +135,7 @@ export default function RoomPage() {
       
       <div className="flex flex-1 flex-col md:flex-row overflow-visible md:overflow-hidden gap-6 p-6 z-10 relative">
         {/* Main Area: Video with Integrated Controls */}
-        <div className="sticky top-6 z-30 md:static flex-none md:flex-1 h-[40vh] md:h-auto flex flex-col min-w-0 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-3xl overflow-hidden shadow-xl relative transition-all duration-500">
+        <div className="sticky top-6 z-30 md:static flex-none md:flex-1 h-[40vh] md:h-auto flex flex-col min-w-0 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl overflow-hidden shadow-xl relative transition-all duration-500">
           <div className="flex-1 relative bg-black">
             <YouTubePlayer 
               videoId={roomState?.videoId || ''}
@@ -170,7 +170,7 @@ export default function RoomPage() {
 
         {/* Sidebar Area: Participants + Chat in ONE box */}
         <div 
-          className={`flex flex-col bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-3xl shadow-xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          className={`flex flex-col bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isSidebarOpen 
               ? 'h-[60vh] md:h-auto w-full md:w-[380px] opacity-100 translate-y-0 md:translate-x-0 mt-0 md:ml-0' 
               : 'h-0 md:h-auto w-full md:w-0 opacity-0 -translate-y-4 md:translate-y-0 md:translate-x-full md:ml-[-24px] border-none mb-4 md:mb-0'

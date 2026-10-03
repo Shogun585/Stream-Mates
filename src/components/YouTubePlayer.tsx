@@ -271,7 +271,7 @@ export default function YouTubePlayer({
 
       {/* Integrated Controls (Glide up from bottom) */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 z-20 bg-[var(--glass-bg)] backdrop-blur-xl border-t border-[var(--glass-border)] p-3 md:p-6 flex flex-col gap-4 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.1,0.8,0.2,1)] ${showControls ? 'translate-y-0' : 'translate-y-full'} ${disabled ? 'opacity-90' : ''}`}
+        className={`absolute bottom-0 left-0 right-0 z-20 bg-[var(--glass-bg)] md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-[var(--glass-border)] md:border-none p-3 md:px-6 md:pt-6 md:pb-2 flex flex-col gap-4 shadow-2xl md:shadow-none transition-transform duration-500 ease-[cubic-bezier(0.1,0.8,0.2,1)] ${showControls ? 'translate-y-0' : 'translate-y-full'} ${disabled ? 'opacity-90' : ''}`}
         onClick={(e) => e.stopPropagation()} // Prevent toggling when interacting with controls
       >
         <div className={`flex items-center justify-center md:justify-start gap-3 md:gap-6 ${isSidebarOpen ? 'md:justify-between' : ''}`}>
@@ -299,122 +299,63 @@ export default function YouTubePlayer({
             </button>
           </div>
 
-          {!isSidebarOpen && (
-            <div className="hidden md:flex flex-1 items-center gap-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-full px-4 py-2 shadow-inner">
-              <span className="font-mono text-sm w-12 text-right font-bold text-[var(--text-primary)]">{formatTime(currentTime)}</span>
-              <input
-                type="range"
-                min={0}
-                max={duration || 100}
-                value={currentTime}
-                onChange={(e) => onSeek(Number(e.target.value))}
-                disabled={disabled}
-                className="flex-1 h-3 bg-[var(--border)] rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed accent-[var(--accent)]"
-              />
-              <span className="font-mono text-sm w-12 font-bold text-[var(--text-primary)]">{formatTime(duration)}</span>
-            </div>
-          )}
+          <div className="hidden md:flex flex-1 items-center gap-4 bg-[var(--bg-color)] border border-[var(--border)] rounded-full px-4 py-2 shadow-inner">
+            <span className="font-mono text-sm w-12 text-right font-bold text-[var(--text-primary)]">{formatTime(currentTime)}</span>
+            <input
+              type="range"
+              min={0}
+              max={duration || 100}
+              value={currentTime}
+              onChange={(e) => onSeek(Number(e.target.value))}
+              disabled={disabled}
+              className="flex-1 h-3 bg-[var(--border)] rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed accent-[var(--accent)]"
+            />
+            <span className="font-mono text-sm w-12 font-bold text-[var(--text-primary)]">{formatTime(duration)}</span>
+          </div>
 
-          {isSidebarOpen && (
-            <div className="hidden md:flex items-center gap-4">
-              <div className="relative flex items-center justify-center">
-                <button 
-                  onClick={() => setShowVolumeSlider(!showVolumeSlider)}
-                  className={`w-12 h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border)] hover:bg-[var(--glass-border)] transition-colors text-[var(--text-primary)] ${showVolumeSlider ? 'bg-[var(--glass-border)]' : ''}`}
-                >
-                  {isMuted || volume === 0 ? <VolumeX size={24} /> : <Volume2 size={24} />}
-                </button>
-                <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 transition-opacity duration-200 bg-[var(--glass-bg)] border border-[var(--border)] p-4 rounded-2xl shadow-xl flex items-center justify-center h-32 w-12 z-50 ${showVolumeSlider ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={isMuted ? 0 : volume}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      handleVolumeChange(val);
-                      if (val === 0 && !isMuted) toggleMute();
-                    }}
-                    className="w-24 h-2 -rotate-90 bg-[var(--border)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={toggleFullscreen}
-                className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-color)] border border-[var(--border)] hover:scale-105 active:scale-95 transition-transform shadow-sm text-[var(--text-primary)]"
-                title="Fullscreen (F)"
+          <div className="hidden md:flex items-center gap-4">
+            <div className="relative flex items-center justify-center">
+              <button 
+                onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+                className={`w-12 h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border)] hover:bg-[var(--glass-border)] transition-colors text-[var(--text-primary)] ${showVolumeSlider ? 'bg-[var(--glass-border)]' : ''}`}
               >
-                {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+                {isMuted || volume === 0 ? <VolumeX size={24} /> : <Volume2 size={24} />}
               </button>
+              <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 transition-opacity duration-200 bg-[var(--glass-bg)] border border-[var(--border)] p-4 rounded-2xl shadow-xl flex items-center justify-center h-32 w-12 z-50 ${showVolumeSlider ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={isMuted ? 0 : volume}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    handleVolumeChange(val);
+                    if (val === 0 && !isMuted) toggleMute();
+                  }}
+                  className="w-24 h-2 -rotate-90 bg-[var(--border)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
+                />
+              </div>
             </div>
-          )}
+
+            <button
+              onClick={toggleFullscreen}
+              className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-color)] border border-[var(--border)] hover:scale-105 active:scale-95 transition-transform shadow-sm text-[var(--text-primary)]"
+              title="Fullscreen (F)"
+            >
+              {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+            </button>
+          </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-4 justify-between mt-2">
-          <form onSubmit={handleUrlSubmit} className="flex-1 flex gap-3 max-w-lg">
-            <input
-              type="text"
-              placeholder="Paste YouTube URL..."
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              disabled={disabled}
-              className="flex-1 bg-[var(--bg-color)] border border-[var(--border)] focus:border-[var(--accent)] rounded-xl px-4 py-2 font-bold text-[var(--text-primary)] focus:outline-none disabled:opacity-50 shadow-inner"
-            />
+        <div className="hidden md:flex items-center gap-4 justify-end mt-2">
+          {disabled && onRequestControl && (
             <button
-              type="submit"
-              disabled={disabled || !url.trim()}
-              className="px-6 py-2 bg-[var(--droplet-4)] text-[var(--bg-color)] font-bold rounded-xl hover:-translate-y-1 active:translate-y-1 transition-transform shadow-sm disabled:opacity-50 disabled:transform-none"
+              onClick={onRequestControl}
+              className="px-6 py-2 bg-[var(--droplet-2)] text-[var(--bg-color)] font-bold rounded-xl hover:-translate-y-1 active:translate-y-1 transition-transform shadow-sm"
             >
-              Load
+              Request Remote
             </button>
-          </form>
-
-          <div className="flex items-center gap-4">
-            {disabled && onRequestControl && (
-              <button
-                onClick={onRequestControl}
-                className="px-6 py-2 bg-[var(--droplet-2)] text-[var(--bg-color)] font-bold rounded-xl hover:-translate-y-1 active:translate-y-1 transition-transform shadow-sm"
-              >
-                Request Remote
-              </button>
-            )}
-            
-            {!isSidebarOpen && (
-              <>
-                <div className="relative flex items-center justify-center">
-                  <button 
-                    onClick={() => setShowVolumeSlider(!showVolumeSlider)}
-                    className={`w-12 h-12 flex items-center justify-center rounded-xl bg-transparent border border-[var(--border)] hover:bg-[var(--glass-border)] transition-colors text-[var(--text-primary)] ${showVolumeSlider ? 'bg-[var(--glass-border)]' : ''}`}
-                  >
-                    {isMuted || volume === 0 ? <VolumeX size={24} /> : <Volume2 size={24} />}
-                  </button>
-                  <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 transition-opacity duration-200 bg-[var(--glass-bg)] border border-[var(--border)] p-4 rounded-2xl shadow-xl flex items-center justify-center h-32 w-12 z-50 ${showVolumeSlider ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={isMuted ? 0 : volume}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        handleVolumeChange(val);
-                        if (val === 0 && !isMuted) toggleMute();
-                      }}
-                      className="w-24 h-2 -rotate-90 bg-[var(--border)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={toggleFullscreen}
-                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-color)] border border-[var(--border)] hover:scale-105 active:scale-95 transition-transform shadow-sm text-[var(--text-primary)]"
-                  title="Fullscreen (F)"
-                >
-                  {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
-                </button>
-              </>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
