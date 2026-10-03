@@ -36,7 +36,7 @@ export class WatchRoom {
     } else {
       this.roomCode = roomCode;
       this.participants = new Map();
-      this.videoId = '';
+      this.videoId = 'KHLNSxe5Y8A';
       this.playState = 'paused';
       this.currentTime = 0;
       this.updatedAt = Date.now();

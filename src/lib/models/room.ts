@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const RoomSchema = new mongoose.Schema({
   roomCode: { type: String, required: true, unique: true, index: true },
   hostClerkId: { type: String, required: true },
-  videoId: { type: String, default: '' },
+  videoId: { type: String, default: 'KHLNSxe5Y8A' },
   playState: { type: String, enum: ['playing', 'paused'], default: 'paused' },
   currentTime: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now, expires: 86400 } // TTL index: auto-delete after 24h

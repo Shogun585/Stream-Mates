@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Play, Pause, RotateCcw, RotateCw, Maximize, Minimize, Volume2, VolumeX } from 'lucide-react';
 import { RoomState } from '../types/socket';
@@ -94,7 +94,7 @@ export default function YouTubePlayer({
     playerRef.current = new window.YT.Player(containerRef.current, {
       height: '100%',
       width: '100%',
-      videoId: videoId || 'dQw4w9WgXcQ', // Fallback prevents YT API crash
+      videoId: videoId || 'KHLNSxe5Y8A', // Fallback prevents YT API crash
       playerVars: {
         autoplay: 0,
         controls: 0,

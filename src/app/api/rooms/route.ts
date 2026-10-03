@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const newRoom = await Room.create({
       roomCode,
       hostClerkId: userId,
-      videoId: videoId || ''
+      videoId: videoId || 'KHLNSxe5Y8A'
     });
 
     return NextResponse.json({ roomCode: newRoom.roomCode }, { status: 201 });
