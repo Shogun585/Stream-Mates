@@ -107,80 +107,13 @@ flowchart TD
 ## Real-Time Sequence Diagrams
 
 ### 1. Connection, Authentication & State Hydration
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Viewer as Viewer
-    participant Client as Next.js Client
-    participant Clerk as Clerk Auth
-    participant Server as Socket.IO Server
-    participant DB as MongoDB Atlas
-    participant YT as YouTube Player
-
-    Viewer->>Client: Open Room URL (/room/[code])
-    Client->>Clerk: Get Session JWT
-    Clerk-->>Client: Return JWT Token
-    Client->>Server: socket.connect({ token, roomId })
-    Server->>Clerk: verifyToken(token)
-    Clerk-->>Server: Valid (userId, username)
-    Server->>DB: Fetch Room & Members
-    DB-->>Server: Return Room Document
-    Server->>Server: Add Socket to Room & Assign Role
-    Server-->>Client: emit("sync_state", { videoId, playState, currentTime })
-    Server-->>Client: emit("user_joined", { participants })
-    Client->>YT: Load video & seek to synchronized timestamp
-```
+![Connection, Authentication & State Hydration](./assets/connection_authentication_and_state_hydration.svg)
 
 ### 2. Playback Control & Adaptive Drift Correction
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Host as Host
-    participant HostClient as Host Client
-    participant Socket as Socket.IO / Server
-    participant ViewerClient as Viewer Client
-    participant ViewerYT as Viewer YouTube Player
-
-    Host->>HostClient: Click Play / Seek (e.g. 02:45)
-    HostClient->>Socket: emit("play", { time: 165 })
-    Socket->>Socket: Update Master Clock (playState: "playing", time: 165s)
-    Socket-->>ViewerClient: broadcast("sync_state", { playState, currentTime })
-    
-    loop Every 500ms (Drift Monitor)
-        ViewerClient->>ViewerClient: Calculate Drift = |playerTime - masterTime|
-        alt Drift < 300ms (Synchronized)
-            ViewerClient->>ViewerYT: Keep playback rate at 1.0x
-        else 300ms <= Drift <= 2000ms (Minor Drift)
-            ViewerClient->>ViewerYT: Adjust playbackRate (1.05x or 0.95x) to catch up smoothly
-        else Drift > 2000ms (Hard Desync)
-            ViewerClient->>ViewerYT: seekTo(masterTime) & playVideo()
-        end
-    end
-```
+![Playback Control & Adaptive Drift Correction](./assets/playback_control_and_adaptive_drift_correction.svg)
 
 ### 3. Video Change Request & Approval Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Viewer as Viewer
-    participant ViewerClient as Viewer Client
-    participant Server as Socket.IO Server
-    participant HostClient as Host Client
-    actor Host as Host
-
-    Viewer->>ViewerClient: Submit YouTube URL ("Request Video")
-    ViewerClient->>Server: emit("request_change", { type: "change_video", payload: { videoId } })
-    Server->>Server: Store ChangeRequest in Room State
-    Server-->>HostClient: emit("change_requested", { requestId, requesterUsername, videoId })
-    Host->>HostClient: Click "Approve"
-    HostClient->>Server: emit("resolve_request", { requestId, approve: true })
-    Server-->>ViewerClient: broadcast("sync_state", { videoId, playState: "paused", currentTime: 0 })
-    Server-->>HostClient: broadcast("sync_state", { videoId, playState: "paused", currentTime: 0 })
-```
-
+![Video Change Request & Approval Flow](./assets/video_change_request_and_approval_flow.svg)
 ---
 
 ## Modules
